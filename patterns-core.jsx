@@ -8,45 +8,25 @@
 // and emits the same CSS classes so styling stays consistent.
 // ============================================================
 
-// ICON — lucide-powered
+// ICON — lucide-powered (matches Foundations sections-a.jsx implementation)
 const Icon = ({ name, size = 16, stroke = 1.75, className = '', style = {} }) => {
   const ref = React.useRef(null);
   React.useEffect(() => {
-    if (ref.current && window.lucide) {
-      ref.current.innerHTML = '';
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svg = document.createElementNS(svgNS, 'svg');
-      svg.setAttribute('xmlns', svgNS);
-      svg.setAttribute('width', size);
-      svg.setAttribute('height', size);
-      svg.setAttribute('viewBox', '0 0 24 24');
-      svg.setAttribute('fill', 'none');
-      svg.setAttribute('stroke', 'currentColor');
-      svg.setAttribute('stroke-width', stroke);
-      svg.setAttribute('stroke-linecap', 'round');
-      svg.setAttribute('stroke-linejoin', 'round');
-      const icons = window.lucide.icons || {};
-      const key = Object.keys(icons).find(k => {
-        const n = name.toLowerCase();
-        const kl = k.toLowerCase();
-        return kl === n || kl === n.replace(/-/g, '') || icons[k]?.name === n;
-      });
-      const spec = icons[key];
-      if (spec && Array.isArray(spec)) {
-        // legacy array form
-      } else if (spec) {
-        const children = spec[2] || spec.children || [];
-        children.forEach(([tag, attrs]) => {
-          const el = document.createElementNS(svgNS, tag);
-          Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v));
-          svg.appendChild(el);
-        });
-      }
-      ref.current.appendChild(svg);
-    }
+    if (!ref.current || !window.lucide) return;
+    ref.current.innerHTML = '';
+    const spec = window.lucide[toPascal(name)] || window.lucide.HelpCircle;
+    const node = window.lucide.createElement(spec);
+    node.setAttribute('width', size);
+    node.setAttribute('height', size);
+    node.setAttribute('stroke-width', stroke);
+    ref.current.appendChild(node);
   }, [name, size, stroke]);
   return <span ref={ref} className={`inline-flex items-center justify-center ${className}`} style={{ width: size, height: size, ...style }} />;
 };
+
+function toPascal(s) {
+  return s.split('-').map(x => x[0].toUpperCase() + x.slice(1)).join('');
+}
 
 // BUTTON
 const Button = ({ variant = 'default', size = 'default', children, leftIcon, rightIcon, className = '', onClick, style, fullWidth, as: Tag = 'button', ...rest }) => {
